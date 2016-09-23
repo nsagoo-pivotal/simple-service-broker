@@ -2,9 +2,8 @@ package io.pivotal.cf.servicebroker.service;
 
 import io.pivotal.cf.servicebroker.Application;
 import io.pivotal.cf.servicebroker.TestConfig;
-import io.pivotal.cf.servicebroker.model.ServiceInstance;
 import io.pivotal.cf.servicebroker.model.ServiceBinding;
-import org.junit.After;
+import io.pivotal.cf.servicebroker.model.ServiceInstance;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,8 +19,6 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
-import java.util.Map;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -52,19 +49,6 @@ public class BindingServiceTest {
         when(instanceService.saveInstance(any(ServiceInstance.class))).thenReturn(si);
 
         when(instanceService.deleteInstance(any(ServiceInstance.class))).thenReturn(si);
-
-        Set<String> keys = repo.keys(BindingService.OBJECT_ID);
-        for (String key : keys) {
-            repo.delete(BindingService.OBJECT_ID, key);
-        }
-    }
-
-    @After
-    public void cleanUp() throws Exception {
-        Set<String> keys = repo.keys(BindingService.OBJECT_ID);
-        for (String key : keys) {
-            repo.delete(BindingService.OBJECT_ID, key);
-        }
     }
 
     @Test

@@ -6,6 +6,7 @@ import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBin
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ServiceBinding implements Serializable {
@@ -34,7 +35,7 @@ public class ServiceBinding implements Serializable {
 
     @JsonSerialize
     @JsonProperty("parameters")
-    private final Map<String, Object> parameters;
+    private final Map<String, Object> parameters = new HashMap<>();
 
     @JsonSerialize
     @JsonProperty("credentials")
@@ -47,11 +48,17 @@ public class ServiceBinding implements Serializable {
         this.planId = request.getPlanId();
         this.appGuid = request.getBoundAppGuid();
         this.bindResource = request.getBindResource();
-        this.parameters = request.getParameters();
+        if (request.getParameters() != null) {
+            getParameters().putAll(request.getParameters());
+        }
     }
 
     public String getId() {
         return id;
+    }
+
+    public Map<String, Object> getParameters() {
+        return parameters;
     }
 
     public void setCredentials(Map<String, Object> creds) {

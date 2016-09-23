@@ -5,6 +5,7 @@ import io.pivotal.cf.servicebroker.TestConfig;
 import io.pivotal.cf.servicebroker.service.InstanceService;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -19,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {Application.class})
+@Ignore
 public class ServiceInstanceRepositoryTest {
 
     @Resource(name = "instanceTemplate")
