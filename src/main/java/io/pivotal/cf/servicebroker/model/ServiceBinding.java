@@ -5,16 +5,23 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
 
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+@Entity
+@Table(name = "service_binding")
 public class ServiceBinding implements Serializable {
 
     public static final long serialVersionUID = 1L;
 
     @JsonSerialize
     @JsonProperty("id")
+    @Id
     private String id;
 
     @JsonSerialize
@@ -31,18 +38,26 @@ public class ServiceBinding implements Serializable {
 
     @JsonSerialize
     @JsonProperty("bind_resource")
-    private final Map<String, Object> bindResource;
+    @Convert(converter = MapConverter.class)
+    private Map<String, Object> bindResource = new HashMap<>();
 
     @JsonSerialize
     @JsonProperty("parameters")
-    private final Map<String, Object> parameters = new HashMap<>();
+    @Convert(converter = MapConverter.class)
+    private Map<String, Object> parameters = new HashMap<>();
 
     @JsonSerialize
     @JsonProperty("credentials")
-    private Map<String, Object> credentials;
+    @Convert(converter = MapConverter.class)
+    private Map<String, Object> credentials = new HashMap<>();
+
+    public ServiceBinding() {
+        super();
+    }
 
     //TODO deal with stuff in response bodies
     public ServiceBinding(CreateServiceInstanceBindingRequest request) {
+        this();
         this.id = request.getBindingId();
         this.serviceId = request.getServiceDefinitionId();
         this.planId = request.getPlanId();
@@ -63,6 +78,10 @@ public class ServiceBinding implements Serializable {
 
     public void setCredentials(Map<String, Object> creds) {
         this.credentials = creds;
+    }
+
+    public Map<String, Object> getCredentials() {
+        return credentials;
     }
 
     public CreateServiceInstanceAppBindingResponse getCreateResponse() {

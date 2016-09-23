@@ -4,16 +4,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.cloud.servicebroker.model.*;
 
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+@Entity
+@Table(name = "service_instance")
 public class ServiceInstance implements Serializable {
 
     public static final long serialVersionUID = 1L;
 
     @JsonSerialize
     @JsonProperty("id")
+    @Id
     private String id;
 
     @JsonSerialize
@@ -34,15 +41,20 @@ public class ServiceInstance implements Serializable {
 
     @JsonSerialize
     @JsonProperty("parameters")
-    private final Map<String, Object> parameters = new HashMap<>();
+    @Convert(converter = MapConverter.class)
+    private Map<String, Object> parameters = new HashMap<>();
 
     @JsonSerialize
     @JsonProperty("accepts_incomplete")
     private boolean acceptsIncomplete;
 
+    public ServiceInstance() {
+        super();
+    }
+
     //TODO deal with stuff in response bodies
     public ServiceInstance(CreateServiceInstanceRequest request) {
-        super();
+        this();
         this.id = request.getServiceInstanceId();
         this.organizationGuid = request.getOrganizationGuid();
         this.planId = request.getPlanId();
@@ -56,6 +68,10 @@ public class ServiceInstance implements Serializable {
 
     public String getId() {
         return id;
+    }
+
+    public Map<String, Object> getParameters() {
+        return parameters;
     }
 
     public ServiceInstance(DeleteServiceInstanceRequest request) {
@@ -72,7 +88,7 @@ public class ServiceInstance implements Serializable {
     public CreateServiceInstanceResponse getCreateResponse() {
         CreateServiceInstanceResponse resp = new CreateServiceInstanceResponse();
         resp.withAsync(this.acceptsIncomplete);
-        if(parameters.containsKey("dashboard_url")) {
+        if (parameters.containsKey("dashboard_url")) {
             resp.withDashboardUrl(parameters.get("dashboard_url").toString());
         }
         return resp;

@@ -1,6 +1,7 @@
 package io.pivotal.cf.servicebroker.service;
 
 import io.pivotal.cf.servicebroker.model.ServiceInstance;
+import io.pivotal.cf.servicebroker.model.ServiceInstanceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
@@ -8,16 +9,12 @@ import org.springframework.cloud.servicebroker.exception.ServiceDefinitionDoesNo
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotExistException;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceExistsException;
 import org.springframework.cloud.servicebroker.model.*;
-import org.springframework.data.redis.core.HashOperations;
+import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
 
 @Service
 @Slf4j
-public class InstanceService implements org.springframework.cloud.servicebroker.service.ServiceInstanceService {
-
-    public static final String OBJECT_ID = "Instance";
+public class InstanceService implements ServiceInstanceService {
 
     @Autowired
     private CatalogService catalogService;
@@ -25,8 +22,8 @@ public class InstanceService implements org.springframework.cloud.servicebroker.
     @Autowired
     private BrokeredService brokeredService;
 
-    @Resource(name = "instanceTemplate")
-    private HashOperations<String, String, ServiceInstance> repository;
+    @Autowired
+    private ServiceInstanceRepository repo;
 
     ServiceInstance getServiceInstance(String id) {
         if (id == null || getInstance(id) == null) {
@@ -98,7 +95,7 @@ public class InstanceService implements org.springframework.cloud.servicebroker.
             throw new ServiceBrokerException("null serviceInstanceId");
         }
 
-        ServiceInstance si = repository.get(OBJECT_ID, id);
+        ServiceInstance si = repo.findOne(id);
 
         if (si == null) {
             throw new ServiceInstanceDoesNotExistException(id);
@@ -107,15 +104,15 @@ public class InstanceService implements org.springframework.cloud.servicebroker.
         return si;
     }
 
-    ServiceInstance deleteInstance(ServiceInstance instance) {
+    private ServiceInstance deleteInstance(ServiceInstance instance) {
         log.info("deleting service instance from repo: " + instance.getId());
-        repository.delete(OBJECT_ID, instance.getId());
+        repo.delete(instance);
         return instance;
     }
 
-    ServiceInstance saveInstance(io.pivotal.cf.servicebroker.model.ServiceInstance instance) {
+    private ServiceInstance saveInstance(io.pivotal.cf.servicebroker.model.ServiceInstance instance) {
         log.info("saving service instance to repo: " + instance.getId());
-        repository.put(OBJECT_ID, instance.getId(), instance);
+        repo.save(instance);
         return instance;
     }
 }
